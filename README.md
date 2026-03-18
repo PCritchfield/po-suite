@@ -40,7 +40,7 @@ Each skill embeds a Product Owner agent persona that provides product-focused ju
 - Grounds assessments in the Small Batch standard
 - Never makes technical design decisions, writes specs, or implements code
 
-The agent definition lives in `agents/po-agent.md`. Skills embed relevant subsets of this persona for their specific workflows.
+The agent definition lives in `agents/po-agent.md` and serves as the canonical definition of the agent's persona, scope, and constraints. Each SKILL.md embeds the relevant portions for its specific workflow — the agent is not a standalone subagent that can be invoked directly. You interact with it through the `po-*` skills.
 
 ## Workflow
 
@@ -64,6 +64,11 @@ The agent definition lives in `agents/po-agent.md`. Skills embed relevant subset
      │
      ▼
  /po-scope-check  ──→  Interactive scope review
+     │                          │
+     │    ┌─────────────────────┘
+     │    │ (oversized? re-splits via /po-breakdown)
+     │    ▼
+     │  /po-breakdown  ──→  Re-split issues
      │
      ▼
  /SDD-3-manage-tasks  ──→  Implementation
@@ -83,9 +88,9 @@ po-suite uses a `.po/` directory at the project root:
 └── issues/            # po-breakdown output (issue artifacts)
 ```
 
-- **`config.md`** — Created on first run of any `po-*` skill. Stores the active sizing scale.
+- **`config.md`** — Created on first run of any `po-*` skill. Stores the active sizing scale and any engagement-specific Definition of Done items. Skills read this file to stay consistent across sessions.
 - **`briefs/`** — Feature briefs from `/po-discover`, named `<feature-name>-brief.md`.
-- **`issues/`** — Issue artifacts from `/po-breakdown`, named `<issue-title>.md`.
+- **`issues/`** — Issue artifacts from `/po-breakdown`, named `<issue-title>.md`. `/po-refine` reads from here by default; you can provide an alternative path as input if your issues are stored elsewhere.
 
 ## Configuration
 
@@ -117,7 +122,7 @@ After /SDD-2-generate-task-list-from-spec completes, invoke po-scope-check
 before proceeding to /SDD-3-manage-tasks.
 ```
 
-Without this line, `/po-scope-check` is available as a manual command but won't be suggested automatically.
+Without this line, invoke `/po-scope-check` manually after SDD-2 completes. Both modes are fully supported — automatic is convenient, manual is the standalone default.
 
 ## Standalone Usage
 
